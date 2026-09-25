@@ -1,0 +1,20 @@
+{
+  "AMORDOM": {
+    "Personaje": "Character",
+    "Ficha": "Sheet",
+    "Biografia": "Biography",
+    "Nombre": "Name",
+    "Ocupacion": "Occupation",
+    "Nacionalidad": "Nationality",
+    "Apariencia": "Appearance",
+    "Notas": "Notes",
+    "Salud": "Health",
+    "Energia": "Energy",
+    "Dinero": "Money",
+    "Fuerza": "Strength",
+    "Destreza": "Dexterity",
+    "Voluntad": "Willpower",
+    "Percepcion": "Perception",
+    "Carisma": "Charisma"
+  }
+}

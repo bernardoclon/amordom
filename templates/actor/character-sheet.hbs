@@ -1,0 +1,557 @@
+<form class="adom-sheet" autocomplete="off">
+  <header class="sheet-header">
+    <button type="button" class="logo-container{{#if actor.flags.amordom.burnedMode}} burned-logo{{/if}}" data-image-picker title="Subir imagen del personaje" aria-label="Subir imagen del personaje">
+      <img src="{{#if actor.img}}{{actor.img}}{{else}}icons/svg/mystery-man.svg{{/if}}" alt="Imagen del personaje" />
+    </button>
+
+    <div class="header-fields">
+      <div class="field header-name-field">
+        <label>Nombre</label>
+        <input type="text" name="name" value="{{actor.name}}" />
+      </div>
+      <div class="field header-concept-field">
+        <label>Concepto</label>
+        <input type="text" name="system.concepto" value="{{actor.system.concepto}}" />
+      </div>
+    </div>
+
+    <img
+      class="sheet-mode-toggle"
+      src="systems/amordom/art/logo-adom.png"
+      alt="ADOM"
+      {{#if actor.flags.amordom.burnedMode}}
+        data-toggle-main-sheet="true"
+        aria-label="Volver a la hoja principal"
+        title="Volver a la hoja principal"
+      {{else}}
+        data-open-burned-sheet="true"
+        aria-label="Cambiar a hoja quemada"
+        title="Cambiar a hoja quemada"
+      {{/if}}
+      role="button"
+      tabindex="0"
+    />
+  </header>
+
+  <nav class="sheet-tabs" aria-label="Secciones del personaje">
+    <button type="button" class="tab-button is-active" data-tab-button="principal">{{#if actor.flags.amordom.burnedMode}}Éxtasis{{else}}Personaje{{/if}}</button>
+    {{#if actor.flags.amordom.burnedMode}}
+      <button type="button" class="tab-button" data-tab-button="arcanas">Arcanas</button>
+    {{/if}}
+    <button type="button" class="tab-button" data-tab-button="combate">Combate</button>
+    <button type="button" class="tab-button" data-tab-button="desarrollo">Aspectos</button>
+    <button type="button" class="tab-button" data-tab-button="extras">Desarrollo</button>
+    <button type="button" class="tab-button" data-tab-button="inventario">Inventario</button>
+  </nav>
+
+  <div class="sheet-mode-panel is-active" data-sheet-panel="principal">
+    <div class="tab-content is-active" data-tab-panel="principal">
+      <main class="sheet-body">
+        <aside class="col-left">
+          <section class="panel atributos">
+            <h2>Atributos</h2>
+            <div class="stat-row">
+              <button type="button" class="attribute-roll-button" data-roll-attribute="fuerza" data-roll-value="{{actor.system.atributos.fuerza}}" aria-label="Tirar Fuerza" title="Tirar Fuerza"><img src="systems/amordom/art/dice.png" alt="" /></button>
+              <label>FOR</label>
+              <input class="stat-value" type="number" name="system.atributos.fuerza" value="{{actor.system.atributos.fuerza}}" />
+              <input class="stat-text" type="text" name="system.atributos.fuerzaTexto" value="{{actor.system.atributos.fuerzaTexto}}" />
+            </div>
+            <div class="stat-row">
+              <button type="button" class="attribute-roll-button" data-roll-attribute="destreza" data-roll-value="{{actor.system.atributos.destreza}}" aria-label="Tirar Destreza" title="Tirar Destreza"><img src="systems/amordom/art/dice.png" alt="" /></button>
+              <label>REF</label>
+              <input class="stat-value" type="number" name="system.atributos.destreza" value="{{actor.system.atributos.destreza}}" />
+              <input class="stat-text" type="text" name="system.atributos.destrezaTexto" value="{{actor.system.atributos.destrezaTexto}}" />
+            </div>
+            <div class="stat-row">
+              <button type="button" class="attribute-roll-button" data-roll-attribute="voluntad" data-roll-value="{{actor.system.atributos.voluntad}}" aria-label="Tirar Voluntad" title="Tirar Voluntad"><img src="systems/amordom/art/dice.png" alt="" /></button>
+              <label>VOL</label>
+              <input class="stat-value" type="number" name="system.atributos.voluntad" value="{{actor.system.atributos.voluntad}}" />
+              <input class="stat-text" type="text" name="system.atributos.voluntadTexto" value="{{actor.system.atributos.voluntadTexto}}" />
+            </div>
+            <div class="stat-row">
+              <button type="button" class="attribute-roll-button" data-roll-attribute="percepcion" data-roll-value="{{actor.system.atributos.percepcion}}" aria-label="Tirar Percepción" title="Tirar Percepción"><img src="systems/amordom/art/dice.png" alt="" /></button>
+              <label>INT</label>
+              <input class="stat-value" type="number" name="system.atributos.percepcion" value="{{actor.system.atributos.percepcion}}" />
+              <input class="stat-text" type="text" name="system.atributos.percepcionTexto" value="{{actor.system.atributos.percepcionTexto}}" />
+            </div>
+          </section>
+
+          <section class="panel salud">
+            <h2>Salud</h2>
+            <div class="salud-grid">
+              <div class="field">
+                <label>Umbral de Herida</label>
+                <input type="number" name="system.salud.umbral" value="{{actor.system.salud.umbral}}" readonly aria-readonly="true" />
+              </div>
+              <div class="field">
+                <label>Resistencia Total</label>
+                <input type="number" name="system.salud.total" value="{{actor.system.salud.total}}" readonly aria-readonly="true" />
+              </div>
+              <div class="field">
+                <label>Resistencia Actual</label>
+                <input type="number" name="system.salud.actual" value="{{actor.system.salud.actual}}" />
+              </div>
+              <div class="field heridas-field">
+                <label>Heridas</label>
+                <div class="heridas-box">
+                  <div class="herida-group leve-group">
+                    <span class="herida-label">Leve</span>
+                    <div class="herida-checks">
+                      <label class="amordom-check leve-check">
+                        <input type="checkbox" name="system.heridas.leve1" {{checked actor.system.heridas.leve1}} />
+                        <span class="checkmark"></span>
+                      </label>
+                      <label class="amordom-check leve-check">
+                        <input type="checkbox" name="system.heridas.leve2" {{checked actor.system.heridas.leve2}} />
+                        <span class="checkmark"></span>
+                      </label>
+                    </div>
+                    <input class="herida-text" type="text" name="system.heridas.leveTexto" value="{{actor.system.heridas.leveTexto}}" />
+                  </div>
+                  <div class="herida-group grave-group">
+                    <span class="herida-label">Grave</span>
+                    <div class="herida-checks">
+                      <label class="amordom-check grave-check primary">
+                        <input type="checkbox" name="system.heridas.grave1" {{checked actor.system.heridas.grave1}} />
+                        <span class="checkmark"></span>
+                      </label>
+                      <label class="amordom-check grave-check secondary">
+                        <input type="checkbox" name="system.heridas.grave2" {{checked actor.system.heridas.grave2}} />
+                        <span class="checkmark"></span>
+                      </label>
+                    </div>
+                    <input class="herida-text" type="text" name="system.heridas.graveTexto" value="{{actor.system.heridas.graveTexto}}" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </aside>
+
+        <section class="col-main">
+          <div class="tracks">
+            <div class="panel distorsion">
+              <h2>Distorsión</h2>
+              <div class="checkbox-group">
+                <label class="amordom-check"><input type="checkbox" name="system.distorcion.1" {{checked (lookup actor.system.distorcion "1")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.distorcion.2" {{checked (lookup actor.system.distorcion "2")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.distorcion.3" {{checked (lookup actor.system.distorcion "3")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.distorcion.4" {{checked (lookup actor.system.distorcion "4")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.distorcion.5" {{checked (lookup actor.system.distorcion "5")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.distorcion.6" {{checked (lookup actor.system.distorcion "6")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.distorcion.7" {{checked (lookup actor.system.distorcion "7")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.distorcion.8" {{checked (lookup actor.system.distorcion "8")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.distorcion.9" {{checked (lookup actor.system.distorcion "9")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.distorcion.10" {{checked (lookup actor.system.distorcion "10")}} /><span class="checkmark"></span></label>
+              </div>
+            </div>
+
+            <div class="panel drama-track">
+              <div class="drama-header">
+                <div class="drama-topline">
+                  <div class="drama-title-wrap">
+                    <h2>Drama</h2>
+                  </div>
+                  <div class="drama-output-wrap">
+                    <label class="drama-output-label">Experiencia</label>
+                  </div>
+                </div>
+                <div class="drama-row">
+                  <div class="checkbox-group drama-checkboxes">
+                    <label class="amordom-check"><input type="checkbox" name="system.drama.1" {{checked (lookup actor.system.drama "1")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.drama.2" {{checked (lookup actor.system.drama "2")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.drama.3" {{checked (lookup actor.system.drama "3")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.drama.4" {{checked (lookup actor.system.drama "4")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.drama.5" {{checked (lookup actor.system.drama "5")}} /><span class="checkmark"></span></label>
+                  </div>
+                  <div class="field drama-experiencia-field">
+                    <input type="number" name="system.drama.experiencia" value="{{actor.system.drama.experiencia}}" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel extasis-track">
+              <div class="extasis-header">
+                <div class="extasis-topline">
+                  <div class="extasis-title-wrap">
+                    <h2>Éxtasis</h2>
+                  </div>
+                  <div class="extasis-output-wrap">
+                    <label class="extasis-output-label">Salida</label>
+                  </div>
+                </div>
+                <div class="extasis-row">
+                  <div class="checkbox-group extasis-checkboxes">
+                    <label class="amordom-check"><input type="checkbox" name="system.extasis.1" {{checked (lookup actor.system.extasis "1")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.extasis.2" {{checked (lookup actor.system.extasis "2")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.extasis.3" {{checked (lookup actor.system.extasis "3")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.extasis.4" {{checked (lookup actor.system.extasis "4")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.extasis.5" {{checked (lookup actor.system.extasis "5")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.extasis.6" {{checked (lookup actor.system.extasis "6")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.extasis.7" {{checked (lookup actor.system.extasis "7")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.extasis.8" {{checked (lookup actor.system.extasis "8")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.extasis.9" {{checked (lookup actor.system.extasis "9")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.extasis.10" {{checked (lookup actor.system.extasis "10")}} /><span class="checkmark"></span></label>
+                  </div>
+                  <div class="field extasis-salida-field">
+                    <input type="number" name="system.extasis.salida" value="{{actor.system.extasis.salida}}" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <section class="panel skills-panel">
+            <h2>Habilidades</h2>
+            <ul class="skill-list multi-column">
+              <li><label>Forma Física</label><input class="skill-value" type="number" name="system.habilidades.formaFisica" value="{{actor.system.habilidades.formaFisica}}" /><input class="skill-text" type="text" name="system.habilidades.formaFisicaTexto" value="{{actor.system.habilidades.formaFisicaTexto}}" /></li>
+              <li><label>Combate</label><input class="skill-value" type="number" name="system.habilidades.combate" value="{{actor.system.habilidades.combate}}" /><input class="skill-text" type="text" name="system.habilidades.combateTexto" value="{{actor.system.habilidades.combateTexto}}" /></li>
+              <li><label>Percepción</label><input class="skill-value" type="number" name="system.habilidades.percepcion" value="{{actor.system.habilidades.percepcion}}" /><input class="skill-text" type="text" name="system.habilidades.percepcionTexto" value="{{actor.system.habilidades.percepcionTexto}}" /></li>
+              <li><label>Subterfugio</label><input class="skill-value" type="number" name="system.habilidades.subterfugio" value="{{actor.system.habilidades.subterfugio}}" /><input class="skill-text" type="text" name="system.habilidades.subterfugioTexto" value="{{actor.system.habilidades.subterfugioTexto}}" /></li>
+              <li><label>Comunicación</label><input class="skill-value" type="number" name="system.habilidades.comunicacion" value="{{actor.system.habilidades.comunicacion}}" /><input class="skill-text" type="text" name="system.habilidades.comunicacionTexto" value="{{actor.system.habilidades.comunicacionTexto}}" /></li>
+              <li><label>Cultura</label><input class="skill-value" type="number" name="system.habilidades.cultura" value="{{actor.system.habilidades.cultura}}" /><input class="skill-text" type="text" name="system.habilidades.culturaTexto" value="{{actor.system.habilidades.culturaTexto}}" /></li>
+              <li><label>Ocultismo</label><input class="skill-value" type="number" name="system.habilidades.ocultismo" value="{{actor.system.habilidades.ocultismo}}" /><input class="skill-text" type="text" name="system.habilidades.ocultismoTexto" value="{{actor.system.habilidades.ocultismoTexto}}" /></li>
+              <li><label>Gestión Emoc.</label><input class="skill-value" type="number" name="system.habilidades.gestionEmocional" value="{{actor.system.habilidades.gestionEmocional}}" /><input class="skill-text" type="text" name="system.habilidades.gestionEmocionalTexto" value="{{actor.system.habilidades.gestionEmocionalTexto}}" /></li>
+            </ul>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div class="tab-content" data-tab-panel="combate" hidden>
+      <div class="panel combate-panel">
+        <div class="combate-stats">
+          <div class="field"><label>Iniciativa</label><input type="number" name="system.combate.iniciativa" value="{{actor.system.combate.iniciativa}}" readonly aria-readonly="true" /></div>
+          <div class="field"><label>RD</label><input type="number" name="system.combate.rd" value="{{actor.system.combate.rd}}" /></div>
+          <div class="field"><label>Daño Dis</label><input type="number" name="system.combate.danoDis" value="{{actor.system.combate.danoDis}}" /></div>
+          <div class="field"><label>Daño CC</label><input type="number" name="system.combate.danoCC" value="{{actor.system.combate.danoCC}}" /></div>
+        </div>
+
+        <div class="field arma-ataque-field">
+          <div class="arma-ataque-header">
+            <label>Arma/Ataque</label>
+            <span class="arma-ataque-dmg-title">Daño</span>
+            <button type="button" class="icon-heart-button add-arma-ataque" data-action="add-arma-ataque" data-list-key="armas" aria-label="Agregar arma o ataque"><span class="heart-symbol">+</span></button>
+          </div>
+          <div class="arma-ataque-list">
+            {{#each actor.system.combate.armas as |arma index|}}
+              <div class="arma-ataque-row" data-list-field="combate.armas" data-row-index="{{@index}}">
+                <input class="arma-ataque-nombre" type="text" name="system.combate.armas.{{@index}}.nombre" value="{{arma.nombre}}" placeholder="Nombre" />
+                <input class="arma-ataque-dmg" type="number" min="0" max="99" inputmode="numeric" pattern="[0-9]*" name="system.combate.armas.{{@index}}.valor" value="{{arma.valor}}" placeholder="00" />
+                <button type="button" class="icon-heart-button delete-arma-ataque" data-action="delete-arma-ataque" data-list-key="armas" aria-label="Eliminar arma o ataque"><span class="heart-symbol">−</span></button>
+              </div>
+            {{/each}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{#if actor.flags.amordom.burnedMode}}
+      <div class="tab-content burned-arcana-tab" data-tab-panel="arcanas" hidden>
+        <section class="panel arcana-panel burned-panel">
+          <div class="field arma-ataque-field arcana-field">
+            <div class="arma-ataque-header">
+              <label>Habilidades arcanas</label>
+              <span class="arma-ataque-dmg-title">Poder</span>
+              <button type="button" class="icon-heart-button add-arma-ataque" data-action="add-habilidades-arcanas" data-list-key="habilidadesArcanas" aria-label="Agregar habilidad arcana"><span class="heart-symbol">+</span></button>
+            </div>
+            <div class="arma-ataque-list">
+              {{#each actor.system.habilidadesArcanas as |habilidad index|}}
+                <div class="arma-ataque-row arcana-row" data-list-field="habilidadesArcanas" data-row-index="{{@index}}">
+                  <input class="arma-ataque-nombre" type="text" name="system.habilidadesArcanas.{{@index}}.nombre" value="{{habilidad.nombre}}" placeholder="Nombre" />
+                  <input class="arma-ataque-dmg" type="number" min="0" max="99" inputmode="numeric" pattern="[0-9]*" name="system.habilidadesArcanas.{{@index}}.valor" value="{{habilidad.valor}}" placeholder="00" />
+                  <button type="button" class="icon-heart-button arcana-roll-button" aria-label="Tirar habilidad arcana {{habilidad.nombre}}" title="Tirar habilidad arcana"><img src="systems/amordom/art/dice.png" alt="" /></button>
+                  <button type="button" class="icon-heart-button delete-arma-ataque" data-action="delete-habilidades-arcanas" data-list-key="habilidadesArcanas" aria-label="Eliminar habilidad arcana"><span class="heart-symbol">−</span></button>
+                </div>
+              {{/each}}
+            </div>
+          </div>
+        </section>
+      </div>
+    {{/if}}
+
+    <div class="tab-content" data-tab-panel="desarrollo" hidden>
+      <div class="panel desarrollo-panel">
+        <div class="desarrollo-grid">
+          <div class="desarrollo-list-panel">
+            <div class="desarrollo-header">
+              <label>Aspectos Temporales</label>
+              <button type="button" class="icon-heart-button add-list-item" data-action="add-hitos" data-list-key="hitos" aria-label="Agregar hito"><span class="heart-symbol">+</span></button>
+            </div>
+            <div class="desarrollo-list" data-list-name="hitos">
+              {{#each actor.system.hitos as |item index|}}
+                <div class="desarrollo-row" data-list-field="hitos" data-row-index="{{@index}}">
+                  <input class="desarrollo-text" type="text" name="system.hitos.{{@index}}.texto" value="{{item.texto}}" placeholder="Hito" />
+                  <button type="button" class="icon-heart-button delete-list-item" data-action="delete-hitos" data-list-key="hitos" aria-label="Eliminar hito"><span class="heart-symbol">−</span></button>
+                </div>
+              {{/each}}
+            </div>
+          </div>
+
+          <div class="desarrollo-list-panel">
+            <div class="desarrollo-header">
+              <label>Complicaciones</label>
+              <button type="button" class="icon-heart-button add-list-item" data-action="add-complicaciones" data-list-key="complicaciones" aria-label="Agregar complicación"><span class="heart-symbol">+</span></button>
+            </div>
+            <div class="desarrollo-list" data-list-name="complicaciones">
+              {{#each actor.system.complicaciones as |item index|}}
+                <div class="desarrollo-row" data-list-field="complicaciones" data-row-index="{{@index}}">
+                  <input class="desarrollo-text" type="text" name="system.complicaciones.{{@index}}.texto" value="{{item.texto}}" placeholder="Complicación" />
+                  <button type="button" class="icon-heart-button delete-list-item" data-action="delete-complicaciones" data-list-key="complicaciones" aria-label="Eliminar complicación"><span class="heart-symbol">−</span></button>
+                </div>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" data-tab-panel="extras" hidden>
+      <div class="panel desarrollo-panel extras-panel">
+        <div class="desarrollo-grid">
+          <div class="desarrollo-list-panel">
+            <div class="desarrollo-header">
+              <label>Hitos</label>
+              <button type="button" class="icon-heart-button add-list-item" data-action="add-logros" data-list-key="logros" aria-label="Agregar logro"><span class="heart-symbol">+</span></button>
+            </div>
+            <div class="desarrollo-list" data-list-name="logros">
+              {{#each actor.system.logros as |item index|}}
+                <div class="desarrollo-row" data-list-field="logros" data-row-index="{{@index}}">
+                  <input class="desarrollo-text" type="text" name="system.logros.{{@index}}.texto" value="{{item.texto}}" placeholder="Logro" />
+                  <button type="button" class="icon-heart-button delete-list-item" data-action="delete-logros" data-list-key="logros" aria-label="Eliminar logro"><span class="heart-symbol">−</span></button>
+                </div>
+              {{/each}}
+            </div>
+          </div>
+
+          <div class="desarrollo-list-panel">
+            <div class="desarrollo-header">
+              <label>Lazos</label>
+              <button type="button" class="icon-heart-button add-list-item" data-action="add-recursos" data-list-key="recursos" aria-label="Agregar recurso"><span class="heart-symbol">+</span></button>
+            </div>
+            <div class="desarrollo-list" data-list-name="recursos">
+              {{#each actor.system.recursos as |item index|}}
+                <div class="desarrollo-row numeric-row" data-list-field="recursos" data-row-index="{{@index}}">
+                  <input class="desarrollo-text" type="text" name="system.recursos.{{@index}}.nombre" value="{{item.nombre}}" placeholder="Recurso" />
+                  <input class="arma-ataque-dmg" type="number" min="0" max="99" inputmode="numeric" pattern="[0-9]*" name="system.recursos.{{@index}}.valor" value="{{item.valor}}" placeholder="00" />
+                  <button type="button" class="icon-heart-button delete-list-item" data-action="delete-recursos" data-list-key="recursos" aria-label="Eliminar recurso"><span class="heart-symbol">−</span></button>
+                </div>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" data-tab-panel="inventario" hidden>
+      <div class="panel desarrollo-panel">
+        <div class="desarrollo-list-panel">
+          <div class="desarrollo-header">
+            <label>Inventario</label>
+            <button type="button" class="icon-heart-button add-list-item" data-action="add-inventario" data-list-key="inventario" aria-label="Agregar objeto"><span class="heart-symbol">+</span></button>
+          </div>
+          <div class="desarrollo-list" data-list-name="inventario">
+            {{#each actor.system.inventario as |item index|}}
+              <div class="desarrollo-row" data-list-field="inventario" data-row-index="{{@index}}">
+                <input class="desarrollo-text" type="text" name="system.inventario.{{@index}}.texto" value="{{item.texto}}" placeholder="Objeto" />
+                <button type="button" class="icon-heart-button delete-list-item" data-action="delete-inventario" data-list-key="inventario" aria-label="Eliminar objeto"><span class="heart-symbol">−</span></button>
+              </div>
+            {{/each}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet-mode-panel copia-mode-panel" data-sheet-panel="copia" hidden>
+    <div class="copia-shell">
+      <main class="sheet-body copia-sheet-body">
+        <aside class="col-left">
+          <section class="panel atributos copia-panel-block">
+            <h2>Atributos</h2>
+            <div class="stat-row">
+              <label>FOR</label>
+              <input class="stat-value" type="number" name="system.copia.atributos.fuerza" value="{{copy.atributos.fuerza}}" />
+              <input class="stat-text" type="text" name="system.copia.atributos.fuerzaTexto" value="{{copy.atributos.fuerzaTexto}}" />
+            </div>
+            <div class="stat-row">
+              <label>REF</label>
+              <input class="stat-value" type="number" name="system.copia.atributos.destreza" value="{{copy.atributos.destreza}}" />
+              <input class="stat-text" type="text" name="system.copia.atributos.destrezaTexto" value="{{copy.atributos.destrezaTexto}}" />
+            </div>
+            <div class="stat-row">
+              <label>VOL</label>
+              <input class="stat-value" type="number" name="system.copia.atributos.voluntad" value="{{copy.atributos.voluntad}}" />
+              <input class="stat-text" type="text" name="system.copia.atributos.voluntadTexto" value="{{copy.atributos.voluntadTexto}}" />
+            </div>
+            <div class="stat-row">
+              <label>INT</label>
+              <input class="stat-value" type="number" name="system.copia.atributos.percepcion" value="{{copy.atributos.percepcion}}" />
+              <input class="stat-text" type="text" name="system.copia.atributos.percepcionTexto" value="{{copy.atributos.percepcionTexto}}" />
+            </div>
+          </section>
+
+          <section class="panel salud copia-panel-block">
+            <h2>Salud</h2>
+            <div class="salud-grid">
+              <div class="field">
+                <label>Umbral de Herida</label>
+                <input type="number" name="system.copia.salud.umbral" value="{{copy.salud.umbral}}" readonly aria-readonly="true" />
+              </div>
+              <div class="field">
+                <label>Resistencia Total</label>
+                <input type="number" name="system.copia.salud.total" value="{{copy.salud.total}}" readonly aria-readonly="true" />
+              </div>
+              <div class="field">
+                <label>Resistencia Actual</label>
+                <input type="number" name="system.copia.salud.actual" value="{{copy.salud.actual}}" />
+              </div>
+              <div class="field heridas-field">
+                <label>Heridas</label>
+                <div class="heridas-box">
+                  <div class="herida-group leve-group">
+                    <span class="herida-label">Leve</span>
+                    <div class="herida-checks">
+                      <label class="amordom-check leve-check">
+                        <input type="checkbox" name="system.copia.heridas.leve1" {{checked copy.heridas.leve1}} />
+                        <span class="checkmark"></span>
+                      </label>
+                      <label class="amordom-check leve-check">
+                        <input type="checkbox" name="system.copia.heridas.leve2" {{checked copy.heridas.leve2}} />
+                        <span class="checkmark"></span>
+                      </label>
+                    </div>
+                    <input class="herida-text" type="text" name="system.copia.heridas.leveTexto" value="{{copy.heridas.leveTexto}}" />
+                  </div>
+                  <div class="herida-group grave-group">
+                    <span class="herida-label">Grave</span>
+                    <div class="herida-checks">
+                      <label class="amordom-check grave-check primary">
+                        <input type="checkbox" name="system.copia.heridas.grave1" {{checked copy.heridas.grave1}} />
+                        <span class="checkmark"></span>
+                      </label>
+                      <label class="amordom-check grave-check secondary">
+                        <input type="checkbox" name="system.copia.heridas.grave2" {{checked copy.heridas.grave2}} />
+                        <span class="checkmark"></span>
+                      </label>
+                    </div>
+                    <input class="herida-text" type="text" name="system.copia.heridas.graveTexto" value="{{copy.heridas.graveTexto}}" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </aside>
+
+        <section class="col-main">
+          <div class="tracks">
+            <div class="panel distorsion copia-panel-block">
+              <h2>Distorsión</h2>
+              <div class="checkbox-group">
+                <label class="amordom-check"><input type="checkbox" name="system.copia.distorcion.1" {{checked (lookup copy.distorcion "1")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.copia.distorcion.2" {{checked (lookup copy.distorcion "2")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.copia.distorcion.3" {{checked (lookup copy.distorcion "3")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.copia.distorcion.4" {{checked (lookup copy.distorcion "4")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.copia.distorcion.5" {{checked (lookup copy.distorcion "5")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.copia.distorcion.6" {{checked (lookup copy.distorcion "6")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.copia.distorcion.7" {{checked (lookup copy.distorcion "7")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.copia.distorcion.8" {{checked (lookup copy.distorcion "8")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.copia.distorcion.9" {{checked (lookup copy.distorcion "9")}} /><span class="checkmark"></span></label>
+                <label class="amordom-check"><input type="checkbox" name="system.copia.distorcion.10" {{checked (lookup copy.distorcion "10")}} /><span class="checkmark"></span></label>
+              </div>
+            </div>
+
+            <div class="panel drama-track copia-panel-block">
+              <div class="drama-header">
+                <div class="drama-topline">
+                  <div class="drama-title-wrap">
+                    <h2>Drama</h2>
+                  </div>
+                  <div class="drama-output-wrap">
+                    <label class="drama-output-label">Experiencia</label>
+                  </div>
+                </div>
+                <div class="drama-row">
+                  <div class="checkbox-group drama-checkboxes">
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.drama.1" {{checked (lookup copy.drama "1")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.drama.2" {{checked (lookup copy.drama "2")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.drama.3" {{checked (lookup copy.drama "3")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.drama.4" {{checked (lookup copy.drama "4")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.drama.5" {{checked (lookup copy.drama "5")}} /><span class="checkmark"></span></label>
+                  </div>
+                  <div class="field drama-experiencia-field">
+                    <input type="number" name="system.copia.drama.experiencia" value="{{copy.drama.experiencia}}" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel extasis-track copia-panel-block">
+              <div class="extasis-header">
+                <div class="extasis-topline">
+                  <div class="extasis-title-wrap">
+                    <h2>Éxtasis</h2>
+                  </div>
+                  <div class="extasis-output-wrap">
+                    <label class="extasis-output-label">Salida</label>
+                  </div>
+                </div>
+                <div class="extasis-row">
+                  <div class="checkbox-group extasis-checkboxes">
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.extasis.1" {{checked (lookup copy.extasis "1")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.extasis.2" {{checked (lookup copy.extasis "2")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.extasis.3" {{checked (lookup copy.extasis "3")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.extasis.4" {{checked (lookup copy.extasis "4")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.extasis.5" {{checked (lookup copy.extasis "5")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.extasis.6" {{checked (lookup copy.extasis "6")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.extasis.7" {{checked (lookup copy.extasis "7")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.extasis.8" {{checked (lookup copy.extasis "8")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.extasis.9" {{checked (lookup copy.extasis "9")}} /><span class="checkmark"></span></label>
+                    <label class="amordom-check"><input type="checkbox" name="system.copia.extasis.10" {{checked (lookup copy.extasis "10")}} /><span class="checkmark"></span></label>
+                  </div>
+                  <div class="field extasis-salida-field">
+                    <input type="number" name="system.copia.extasis.salida" value="{{copy.extasis.salida}}" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <section class="panel skills-panel copia-panel-block">
+            <h2>Habilidades</h2>
+            <ul class="skill-list multi-column">
+              <li><label>Forma Física</label><input class="skill-value" type="number" name="system.copia.habilidades.formaFisica" value="{{copy.habilidades.formaFisica}}" /><input class="skill-text" type="text" name="system.copia.habilidades.formaFisicaTexto" value="{{copy.habilidades.formaFisicaTexto}}" /></li>
+              <li><label>Combate</label><input class="skill-value" type="number" name="system.copia.habilidades.combate" value="{{copy.habilidades.combate}}" /><input class="skill-text" type="text" name="system.copia.habilidades.combateTexto" value="{{copy.habilidades.combateTexto}}" /></li>
+              <li><label>Percepción</label><input class="skill-value" type="number" name="system.copia.habilidades.percepcion" value="{{copy.habilidades.percepcion}}" /><input class="skill-text" type="text" name="system.copia.habilidades.percepcionTexto" value="{{copy.habilidades.percepcionTexto}}" /></li>
+              <li><label>Subterfugio</label><input class="skill-value" type="number" name="system.copia.habilidades.subterfugio" value="{{copy.habilidades.subterfugio}}" /><input class="skill-text" type="text" name="system.copia.habilidades.subterfugioTexto" value="{{copy.habilidades.subterfugioTexto}}" /></li>
+              <li><label>Comunicación</label><input class="skill-value" type="number" name="system.copia.habilidades.comunicacion" value="{{copy.habilidades.comunicacion}}" /><input class="skill-text" type="text" name="system.copia.habilidades.comunicacionTexto" value="{{copy.habilidades.comunicacionTexto}}" /></li>
+              <li><label>Cultura</label><input class="skill-value" type="number" name="system.copia.habilidades.cultura" value="{{copy.habilidades.cultura}}" /><input class="skill-text" type="text" name="system.copia.habilidades.culturaTexto" value="{{copy.habilidades.culturaTexto}}" /></li>
+              <li><label>Ocultismo</label><input class="skill-value" type="number" name="system.copia.habilidades.ocultismo" value="{{copy.habilidades.ocultismo}}" /><input class="skill-text" type="text" name="system.copia.habilidades.ocultismoTexto" value="{{copy.habilidades.ocultismoTexto}}" /></li>
+              <li><label>Gestión Emoc.</label><input class="skill-value" type="number" name="system.copia.habilidades.gestionEmocional" value="{{copy.habilidades.gestionEmocional}}" /><input class="skill-text" type="text" name="system.copia.habilidades.gestionEmocionalTexto" value="{{copy.habilidades.gestionEmocionalTexto}}" /></li>
+            </ul>
+          </section>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="sheet-mode-panel" data-sheet-panel="pnj" hidden>
+    <div class="panel pnj-summary">
+      <h2>Ficha PNJ</h2>
+      <div class="field">
+        <label>Motivación principal</label>
+        <textarea name="system.pnj.motivacion">{{actor.system.pnj.motivacion}}</textarea>
+      </div>
+      <div class="field">
+        <label>Historia breve</label>
+        <textarea name="system.pnj.historia">{{actor.system.pnj.historia}}</textarea>
+      </div>
+      <div class="field">
+        <label>Notas de escena</label>
+        <textarea name="system.pnj.notas">{{actor.system.pnj.notas}}</textarea>
+      </div>
+    </div>
+  </div>
+</form>
