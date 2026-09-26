@@ -1,10 +1,10 @@
 const { DialogV2 } = foundry.applications.api;
 
 const ATTRIBUTE_LABELS = {
-  fuerza: 'Fuerza',
-  destreza: 'Destreza',
+  fuerza: 'Fortaleza',
+  destreza: 'Reflejos',
   voluntad: 'Voluntad',
-  percepcion: 'Percepción'
+  percepcion: 'Inteligencia'
 };
 
 const SKILL_LABELS = {
@@ -18,10 +18,11 @@ const SKILL_LABELS = {
   gestionEmocional: 'Gestión Emocional'
 };
 
-export function openAttributeRollDialog(actor, attribute, attributeValue) {
+export function openAttributeRollDialog(actor, attribute, attributeValue, isCopyMode = false) {
   const label = ATTRIBUTE_LABELS[attribute] ?? attribute;
-  const value = Number(attributeValue) || 0;
-  const skills = actor.system?.habilidades ?? {};
+  const sourceSystem = isCopyMode ? actor.system?.copia : actor.system;
+  const value = Number(sourceSystem?.atributos?.[attribute] ?? attributeValue) || 0;
+  const skills = sourceSystem?.habilidades ?? {};
   const skillOptions = Object.entries(SKILL_LABELS)
     .map(([key, skillLabel], index) => `<option value="${key}"${index === 0 ? ' selected' : ''}>${skillLabel} (${Number(skills[key]) || 0})</option>`)
     .join('');
@@ -34,7 +35,7 @@ export function openAttributeRollDialog(actor, attribute, attributeValue) {
     content: `
       <form class="amordom-roll-dialog">
         <div class="amordom-roll-dialog__summary">
-          <span>${label}</span>
+          <strong>${label}</strong>
           <strong>${value}</strong>
         </div>
         <fieldset class="amordom-roll-dialog__field amordom-roll-dialog__dice-field">
@@ -207,13 +208,13 @@ export function openAttributeRollDialog(actor, attribute, attributeValue) {
   return renderedDialog;
 }
 
-export function bindAttributeRolls(root, actor) {
+export function bindAttributeRolls(root, actor, isCopyMode = false) {
   root.querySelectorAll('.attribute-roll-button[data-roll-attribute]').forEach((field) => {
     if (field.dataset.adomBound === 'attribute-roll') return;
     field.dataset.adomBound = 'attribute-roll';
     field.addEventListener('click', (event) => {
       event.stopPropagation();
-      openAttributeRollDialog(actor, field.dataset.rollAttribute, field.dataset.rollValue);
+      openAttributeRollDialog(actor, field.dataset.rollAttribute, field.dataset.rollValue, isCopyMode);
     });
   });
 }

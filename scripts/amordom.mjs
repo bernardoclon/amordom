@@ -475,7 +475,7 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
     }
     this._bindFormPersistence();
     this._bindInteractionHandlers();
-    bindAttributeRolls(root, this.document);
+    bindAttributeRolls(root, this.document, this._isBurnedMode);
     bindArcanaRolls(root, this.document, this._isBurnedMode);
     this._setSheetMode('principal');
     
@@ -522,7 +522,7 @@ class AmorDomBurnedCharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
     const windowTitle = this.element?.querySelector('.window-title');
     if (windowTitle) windowTitle.textContent = this.document.name;
     if (this.element) {
-      bindAttributeRolls(this.element, this.document);
+      bindAttributeRolls(this.element, this.document, true);
       bindArcanaRolls(this.element, this.document, true);
     }
   }

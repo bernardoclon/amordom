@@ -11,10 +11,10 @@
     "Salud": "Health",
     "Energia": "Energy",
     "Dinero": "Money",
-    "Fuerza": "Strength",
-    "Destreza": "Dexterity",
+    "Fortaleza": "Fortitude",
+    "Reflejos": "Reflexes",
     "Voluntad": "Willpower",
-    "Percepcion": "Perception",
+    "Inteligencia": "Intelligence",
     "Carisma": "Charisma"
   }
 }

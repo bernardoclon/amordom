@@ -78,7 +78,7 @@
 
 .amordom.sheet .adom-sheet .sheet-mode-toggle {
   position: absolute;
-  top: 0.25rem;
+  top: calc(0.25rem + 5px);
   right: 0.45rem;
   margin-left: 0;
   border: 2px solid var(--amordom-primary);
@@ -101,13 +101,24 @@
 .amordom.sheet .adom-sheet .sheet-mode-toggle:hover {
   border-color: var(--amordom-deep);
   background: #fff;
-  box-shadow: 0 7px 16px rgba(65, 20, 34, 0.3);
-  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 0 0 2px rgba(110, 30, 51, 0.22), 0 0 14px rgba(110, 30, 51, 0.42);
+  transform: none;
 }
 
 .amordom.sheet .adom-sheet .sheet-mode-toggle:active {
-  box-shadow: 0 2px 6px rgba(65, 20, 34, 0.22);
-  transform: translateY(0) scale(0.97);
+  box-shadow: 0 0 0 2px rgba(110, 30, 51, 0.28), 0 0 10px rgba(110, 30, 51, 0.48);
+  transform: none;
+}
+
+.amordom.sheet.burned-sheet .adom-sheet .sheet-mode-toggle:hover,
+.amordom.sheet .adom-sheet.burned-sheet-form .sheet-mode-toggle:hover {
+  border-color: var(--amordom-burned-primary);
+  box-shadow: 0 0 0 2px rgba(0, 36, 70, 0.24), 0 0 14px rgba(56, 155, 255, 0.5);
+}
+
+.amordom.sheet.burned-sheet .adom-sheet .sheet-mode-toggle:active,
+.amordom.sheet .adom-sheet.burned-sheet-form .sheet-mode-toggle:active {
+  box-shadow: 0 0 0 2px rgba(0, 36, 70, 0.3), 0 0 10px rgba(56, 155, 255, 0.58);
 }
 
 .amordom.sheet .adom-sheet .sheet-mode-toggle:focus-visible {
@@ -116,6 +127,7 @@
 }
 
 .amordom.sheet .adom-sheet .logo-container {
+  position: relative;
   width: 110px;
   min-width: 110px;
   height: 110px;
@@ -128,6 +140,8 @@
   box-shadow: 0 6px 14px rgba(110, 30, 51, 0.12);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
   padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .amordom.sheet .adom-sheet .logo-container:hover {
@@ -136,9 +150,13 @@
 }
 
 .amordom.sheet .adom-sheet .logo-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  height: auto;
+  max-width: none;
+  display: block;
   border-radius: 8px;
   background: transparent;
   mix-blend-mode: normal;

@@ -6,10 +6,10 @@
   "authors": [
     {
       "name": "Tu Nombre",
-      "email": "tu-email@example.com"
+      "email": "tu-email@example.com",
+      "flags": {}
     }
   ],
-  "url": "",
   "license": "MIT",
   "readme": "README.md",
   "esmodules": [
@@ -18,19 +18,25 @@
     "scripts/dices.mjs"
   ],
   "styles": [
-    "styles/amordom.css",
-    "styles/pause-customizer.css"
+    {
+      "src": "styles/amordom.css"
+    },
+    {
+      "src": "styles/pause-customizer.css"
+    }
   ],
   "languages": [
     {
       "lang": "es",
       "name": "Español",
-      "path": "lang/es.json"
+      "path": "lang/es.json",
+      "flags": {}
     },
     {
       "lang": "en",
       "name": "English",
-      "path": "lang/en.json"
+      "path": "lang/en.json",
+      "flags": {}
     }
   ],
   "documentTypes": {
@@ -49,9 +55,9 @@
     "verified": "14",
     "maximum": "14"
   },
-  "socket": false,
   "primaryTokenAttribute": "health",
   "background": "systems/amordom/art/wallpaper.png",
   "manifest": "https://raw.githubusercontent.com/bernardoclon/amordom/refs/heads/main/system.json",
-  "download": "https://github.com/bernardoclon/amordom/archive/refs/tags/0.1.0.zip"
+  "download": "https://github.com/bernardoclon/amordom/archive/refs/tags/V0-2.zip",
+  "flags": {}
 }
