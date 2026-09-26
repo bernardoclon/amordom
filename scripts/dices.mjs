@@ -128,6 +128,7 @@ export function openAttributeRollDialog(actor, attribute, attributeValue, isCopy
 
           await roll.toMessage({
             speaker: ChatMessage.getSpeaker({ actor }),
+            timestamp: Date.now(),
             flavor: `
               <div class="amordom-chat-roll">
                 <div class="amordom-chat-roll__header">
@@ -323,6 +324,7 @@ export function openArcanaRollDialog(actor, arcanaName, arcanaValue, isCopyMode 
 
           await roll.toMessage({
             speaker: ChatMessage.getSpeaker({ actor }),
+            timestamp: Date.now(),
             flavor: `
               <div class="amordom-chat-roll">
                 <div class="amordom-chat-roll__header">
