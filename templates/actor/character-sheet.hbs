@@ -1,6 +1,6 @@
 <form class="adom-sheet" autocomplete="off">
   <header class="sheet-header">
-    <button type="button" class="logo-container{{#if actor.flags.amordom.burnedMode}} burned-logo{{/if}}" data-image-picker title="Subir imagen del personaje" aria-label="Subir imagen del personaje">
+    <button type="button" class="logo-container{{#if isBurnedMode}} burned-logo{{/if}}" data-image-picker title="Subir imagen del personaje" aria-label="Subir imagen del personaje">
       <img src="{{#if actor.img}}{{actor.img}}{{else}}icons/svg/mystery-man.svg{{/if}}" alt="Imagen del personaje" />
     </button>
 
@@ -19,7 +19,7 @@
       class="sheet-mode-toggle"
       src="systems/amordom/art/logo-adom.png"
       alt="ADOM"
-      {{#if actor.flags.amordom.burnedMode}}
+      {{#if isBurnedMode}}
         data-toggle-main-sheet="true"
         aria-label="Volver a la hoja principal"
         title="Volver a la hoja principal"
@@ -34,8 +34,8 @@
   </header>
 
   <nav class="sheet-tabs" aria-label="Secciones del personaje">
-    <button type="button" class="tab-button is-active" data-tab-button="principal">{{#if actor.flags.amordom.burnedMode}}Éxtasis{{else}}Personaje{{/if}}</button>
-    {{#if actor.flags.amordom.burnedMode}}
+    <button type="button" class="tab-button is-active" data-tab-button="principal">{{#if isBurnedMode}}Éxtasis{{else}}Personaje{{/if}}</button>
+    {{#if isBurnedMode}}
       <button type="button" class="tab-button" data-tab-button="arcanas">Arcanas</button>
     {{/if}}
     <button type="button" class="tab-button" data-tab-button="combate">Combate</button>
@@ -248,7 +248,7 @@
       </div>
     </div>
 
-    {{#if actor.flags.amordom.burnedMode}}
+    {{#if isBurnedMode}}
       <div class="tab-content burned-arcana-tab" data-tab-panel="arcanas" hidden>
         <section class="panel arcana-panel burned-panel">
           <div class="field arma-ataque-field arcana-field">

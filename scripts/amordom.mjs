@@ -45,8 +45,7 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
   };
 
   _syncTemplateForMode() {
-    const burned = Boolean(this.document?.getFlag('amordom', 'burnedMode'));
-    const template = burned
+    const template = this._isBurnedMode
       ? 'systems/amordom/templates/actor/character-sheet-burned.hbs'
       : 'systems/amordom/templates/actor/character-sheet.hbs';
     this.constructor.PARTS.main.template = template;
@@ -74,9 +73,9 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
   }
 
   async _prepareContext(options) {
+    this._isBurnedMode ??= false;
     this._syncTemplateForMode();
     const context = await super._prepareContext(options);
-    this._isBurnedMode = Boolean(this.document.getFlag('amordom', 'burnedMode'));
 
     const currentSystem = this.document.system;
     const baseSystem = currentSystem.toObject ? currentSystem.toObject() : foundry.utils.deepClone(currentSystem);
@@ -378,7 +377,6 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
       this._activeTab = 'principal';
       this.element?.classList.toggle('burned-sheet', this._isBurnedMode);
       this._setSheetMode('principal');
-      await this.document.setFlag('amordom', 'burnedMode', this._isBurnedMode);
       this._syncTemplateForMode();
       this.render({
         force: true,
