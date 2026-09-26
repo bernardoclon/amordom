@@ -279,7 +279,8 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
         if (initiativeInput) initiativeInput.value = initiative;
       }
 
-      await this.document.update(updateData, { diff: false });
+      const isWoundCheckbox = target.matches('.heridas-box input[type="checkbox"]');
+      await this.document.update(updateData, { diff: false, render: !isWoundCheckbox });
     });
   }
 
