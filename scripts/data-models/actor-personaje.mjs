@@ -86,7 +86,9 @@ export default class ActorPersonajeData extends foundry.abstract.TypeDataModel {
       }),
       habilidadesArcanas: new fields.ArrayField(new fields.SchemaField({
         nombre: new fields.StringField({ required: false, blank: true, initial: '' }),
-        valor: new fields.NumberField({ required: false, nullable: false, integer: true, initial: 0, min: 0, max: 99 })
+        valor: new fields.NumberField({ required: false, nullable: false, integer: true, initial: 0, min: 0, max: 99 }),
+        innata: new fields.BooleanField({ required: false, initial: false }),
+        aprendida: new fields.BooleanField({ required: false, initial: false })
       }), { required: false, initial: [] }),
       combate: new fields.SchemaField({
         iniciativa: new fields.NumberField({ required: false, nullable: false, integer: true, initial: 0, min: 0 }),
@@ -95,7 +97,10 @@ export default class ActorPersonajeData extends foundry.abstract.TypeDataModel {
         danoCC: new fields.NumberField({ required: false, nullable: false, integer: true, initial: 0, min: 0 }),
         armas: new fields.ArrayField(new fields.SchemaField({
           nombre: new fields.StringField({ required: false, blank: true, initial: '' }),
-          valor: new fields.NumberField({ required: false, nullable: false, integer: true, initial: 0, min: 0, max: 99 })
+          valor: new fields.StringField({ required: false, blank: true, initial: '' }),
+          dadoM: new fields.BooleanField({ required: false, initial: false }),
+          dadoC: new fields.BooleanField({ required: false, initial: false }),
+          dadoMayor: new fields.BooleanField({ required: false, initial: false })
         }), { required: false, initial: [] })
       }),
       
@@ -208,13 +213,22 @@ export default class ActorPersonajeData extends foundry.abstract.TypeDataModel {
         }),
         habilidadesArcanas: new fields.ArrayField(new fields.SchemaField({
           nombre: new fields.StringField({ required: false, blank: true, initial: '' }),
-          valor: new fields.NumberField({ required: false, nullable: false, integer: true, initial: 0, min: 0, max: 99 })
+          valor: new fields.NumberField({ required: false, nullable: false, integer: true, initial: 0, min: 0, max: 99 }),
+          innata: new fields.BooleanField({ required: false, initial: false }),
+          aprendida: new fields.BooleanField({ required: false, initial: false })
         }), { required: false, initial: [] }),
         combate: new fields.SchemaField({
           iniciativa: new fields.NumberField({ required: false, nullable: false, integer: true, initial: 0, min: 0 }),
           rd: new fields.NumberField({ required: false, nullable: false, integer: true, initial: 0, min: 0 }),
           danoDis: new fields.NumberField({ required: false, nullable: false, integer: true, initial: 0, min: 0 }),
-          danoCC: new fields.NumberField({ required: false, nullable: false, integer: true, initial: 0, min: 0 })
+          danoCC: new fields.NumberField({ required: false, nullable: false, integer: true, initial: 0, min: 0 }),
+          armas: new fields.ArrayField(new fields.SchemaField({
+            nombre: new fields.StringField({ required: false, blank: true, initial: '' }),
+            valor: new fields.StringField({ required: false, blank: true, initial: '' }),
+            dadoM: new fields.BooleanField({ required: false, initial: false }),
+            dadoC: new fields.BooleanField({ required: false, initial: false }),
+            dadoMayor: new fields.BooleanField({ required: false, initial: false })
+          }), { required: false, initial: [] })
         })
       }),
       pnj: new fields.SchemaField({

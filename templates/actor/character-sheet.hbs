@@ -223,23 +223,31 @@
     <div class="tab-content" data-tab-panel="combate" hidden>
       <div class="panel combate-panel">
         <div class="combate-stats">
-          <div class="field"><label>Iniciativa</label><input type="number" name="system.combate.iniciativa" value="{{actor.system.combate.iniciativa}}" readonly aria-readonly="true" /></div>
+          <div class="field initiative-field"><label>Iniciativa</label><div class="initiative-value"><button type="button" class="attribute-roll-button initiative-roll-button" data-roll-initiative data-roll-value="{{actor.system.combate.iniciativa}}" aria-label="Tirar Iniciativa" title="Tirar Iniciativa"><img src="systems/amordom/art/dice.png" alt="" /></button><input type="number" name="system.combate.iniciativa" value="{{actor.system.combate.iniciativa}}" readonly aria-readonly="true" /></div></div>
           <div class="field"><label>RD</label><input type="number" name="system.combate.rd" value="{{actor.system.combate.rd}}" /></div>
           <div class="field"><label>Daño Dis</label><input type="number" name="system.combate.danoDis" value="{{actor.system.combate.danoDis}}" /></div>
           <div class="field"><label>Daño CC</label><input type="number" name="system.combate.danoCC" value="{{actor.system.combate.danoCC}}" /></div>
         </div>
 
         <div class="field arma-ataque-field">
-          <div class="arma-ataque-header">
+          <div class="arma-ataque-header weapon-attack-header">
             <label>Arma/Ataque</label>
             <span class="arma-ataque-dmg-title">Daño</span>
+            <span></span>
+            <span></span>
             <button type="button" class="icon-heart-button add-arma-ataque" data-action="add-arma-ataque" data-list-key="armas" aria-label="Agregar arma o ataque"><span class="heart-symbol">+</span></button>
           </div>
           <div class="arma-ataque-list">
             {{#each actor.system.combate.armas as |arma index|}}
-              <div class="arma-ataque-row" data-list-field="combate.armas" data-row-index="{{@index}}">
+              <div class="arma-ataque-row weapon-roll-row" data-list-field="combate.armas" data-row-index="{{@index}}">
                 <input class="arma-ataque-nombre" type="text" name="system.combate.armas.{{@index}}.nombre" value="{{arma.nombre}}" placeholder="Nombre" />
-                <input class="arma-ataque-dmg" type="number" min="0" max="99" inputmode="numeric" pattern="[0-9]*" name="system.combate.armas.{{@index}}.valor" value="{{arma.valor}}" placeholder="00" />
+                <input class="arma-ataque-dmg" type="text" name="system.combate.armas.{{@index}}.valor" value="{{arma.valor}}" placeholder="1d10" aria-label="Daño de {{arma.nombre}}" />
+                <div class="weapon-dice-options" role="group" aria-label="Dados a sumar para {{arma.nombre}}">
+                  <label class="weapon-die-option" title="Dado m"><input type="checkbox" name="system.combate.armas.{{@index}}.dadoM" data-weapon-die="m" {{checked arma.dadoM}} /><span><img class="weapon-heart-empty" src="systems/amordom/art/heart.png" alt="" /><img class="weapon-heart-full" src="systems/amordom/art/heart full.png" alt="" /><b>m</b></span></label>
+                  <label class="weapon-die-option" title="Dado C"><input type="checkbox" name="system.combate.armas.{{@index}}.dadoC" data-weapon-die="c" {{checked arma.dadoC}} /><span><img class="weapon-heart-empty" src="systems/amordom/art/heart.png" alt="" /><img class="weapon-heart-full" src="systems/amordom/art/heart full.png" alt="" /><b>C</b></span></label>
+                  <label class="weapon-die-option" title="Dado M"><input type="checkbox" name="system.combate.armas.{{@index}}.dadoMayor" data-weapon-die="M" {{checked arma.dadoMayor}} /><span><img class="weapon-heart-empty" src="systems/amordom/art/heart.png" alt="" /><img class="weapon-heart-full" src="systems/amordom/art/heart full.png" alt="" /><b>M</b></span></label>
+                </div>
+                <button type="button" class="icon-heart-button weapon-roll-button" data-roll-weapon aria-label="Tirar daño de {{arma.nombre}}" title="Tirar daño"><img src="systems/amordom/art/dice.png" alt="" /></button>
                 <button type="button" class="icon-heart-button delete-arma-ataque" data-action="delete-arma-ataque" data-list-key="armas" aria-label="Eliminar arma o ataque"><span class="heart-symbol">−</span></button>
               </div>
             {{/each}}
@@ -252,19 +260,32 @@
       <div class="tab-content burned-arcana-tab" data-tab-panel="arcanas" hidden>
         <section class="panel arcana-panel burned-panel">
           <div class="field arma-ataque-field arcana-field">
-            <div class="arma-ataque-header">
+            <div class="arma-ataque-header arcana-attack-header">
               <label>Habilidades arcanas</label>
               <span class="arma-ataque-dmg-title">Poder</span>
+              <span></span>
+              <span></span>
               <button type="button" class="icon-heart-button add-arma-ataque" data-action="add-habilidades-arcanas" data-list-key="habilidadesArcanas" aria-label="Agregar habilidad arcana"><span class="heart-symbol">+</span></button>
             </div>
-            <div class="arma-ataque-list">
-              {{#each actor.system.habilidadesArcanas as |habilidad index|}}
-                <div class="arma-ataque-row arcana-row" data-list-field="habilidadesArcanas" data-row-index="{{@index}}">
-                  <input class="arma-ataque-nombre" type="text" name="system.habilidadesArcanas.{{@index}}.nombre" value="{{habilidad.nombre}}" placeholder="Nombre" />
-                  <input class="arma-ataque-dmg" type="number" min="0" max="99" inputmode="numeric" pattern="[0-9]*" name="system.habilidadesArcanas.{{@index}}.valor" value="{{habilidad.valor}}" placeholder="00" />
-                  <button type="button" class="icon-heart-button arcana-roll-button" aria-label="Tirar habilidad arcana {{habilidad.nombre}}" title="Tirar habilidad arcana"><img src="systems/amordom/art/dice.png" alt="" /></button>
-                  <button type="button" class="icon-heart-button delete-arma-ataque" data-action="delete-habilidades-arcanas" data-list-key="habilidadesArcanas" aria-label="Eliminar habilidad arcana"><span class="heart-symbol">−</span></button>
-                </div>
+            <div class="arma-ataque-list arcana-groups">
+              {{#each arcanaGroups as |grupo|}}
+                <section class="arcana-group" data-arcana-group="{{grupo.key}}" {{#if grupo.isEmpty}}hidden{{/if}}>
+                  <h3 class="arcana-group-heading">{{grupo.label}}</h3>
+                  <div class="arcana-group-items">
+                    {{#each grupo.habilidades as |habilidad|}}
+                      <div class="arma-ataque-row arcana-row" data-list-field="habilidadesArcanas" data-row-index="{{habilidad.originalIndex}}" data-arcana-group="{{habilidad.arcanaGroupKey}}">
+                        <input class="arma-ataque-nombre" type="text" name="system.habilidadesArcanas.{{habilidad.originalIndex}}.nombre" value="{{habilidad.nombre}}" placeholder="Nombre" />
+                        <input class="arma-ataque-dmg" type="number" min="0" max="99" inputmode="numeric" pattern="[0-9]*" name="system.habilidadesArcanas.{{habilidad.originalIndex}}.valor" value="{{habilidad.valor}}" placeholder="00" />
+                        <div class="weapon-dice-options arcana-type-options" role="group" aria-label="Tipo de habilidad arcana">
+                          <label class="arcana-type-option" title="Innata"><input type="checkbox" name="system.habilidadesArcanas.{{habilidad.originalIndex}}.innata" {{checked habilidad.innata}} /><span><img class="arcana-heart-empty" src="systems/amordom/art/heart.png" alt="" /><img class="arcana-heart-full" src="systems/amordom/art/heart full.png" alt="" /><b>I</b></span></label>
+                          <label class="arcana-type-option" title="Aprendida"><input type="checkbox" name="system.habilidadesArcanas.{{habilidad.originalIndex}}.aprendida" {{checked habilidad.aprendida}} /><span><img class="arcana-heart-empty" src="systems/amordom/art/heart.png" alt="" /><img class="arcana-heart-full" src="systems/amordom/art/heart full.png" alt="" /><b>A</b></span></label>
+                        </div>
+                        <button type="button" class="icon-heart-button arcana-roll-button" aria-label="Tirar habilidad arcana {{habilidad.nombre}}" title="Tirar habilidad arcana"><img src="systems/amordom/art/dice.png" alt="" /></button>
+                        <button type="button" class="icon-heart-button delete-arma-ataque" data-action="delete-habilidades-arcanas" data-list-key="habilidadesArcanas" aria-label="Eliminar habilidad arcana"><span class="heart-symbol">−</span></button>
+                      </div>
+                    {{/each}}
+                  </div>
+                </section>
               {{/each}}
             </div>
           </div>

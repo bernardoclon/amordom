@@ -485,6 +485,7 @@
 .amordom.sheet.burned-sheet .adom-sheet .extasis-output-label,
 .amordom.sheet.burned-sheet .adom-sheet .desarrollo-header label,
 .amordom.sheet.burned-sheet .adom-sheet .arma-ataque-header label,
+.amordom.sheet.burned-sheet .adom-sheet .arcana-group-heading,
 .amordom.sheet.burned-sheet .adom-sheet .arma-ataque-dmg-title {
   color: var(--amordom-burned-primary);
 }
@@ -627,6 +628,17 @@
 .amordom.sheet .adom-sheet .attribute-roll-button:focus-visible {
   color: var(--amordom-deep);
   transform: scale(1.08);
+}
+
+.amordom.sheet .adom-sheet .initiative-value {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.amordom.sheet .adom-sheet .initiative-value input {
+  width: 4rem;
+  max-width: 4rem;
 }
 
 .application.dialog.amordom-roll-dialog-window .amordom-roll-dialog__button-icon {
@@ -1534,10 +1546,21 @@
 }
 
 .amordom.sheet .adom-sheet .combate-stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
   gap: 0.7rem;
   margin-bottom: 0.6rem;
+}
+
+.amordom.sheet .adom-sheet .combate-stats > .field {
+  flex: 0 0 auto;
+}
+
+.amordom.sheet .adom-sheet .combate-stats > .field > input {
+  width: 4rem;
+  max-width: 4rem;
 }
 
 .amordom.sheet .adom-sheet .combate-panel {
@@ -1564,6 +1587,14 @@
   grid-template-columns: minmax(0, 1fr) 64px 26px;
   align-items: center;
   gap: 0.45rem;
+}
+
+.amordom.sheet .adom-sheet .weapon-attack-header {
+  grid-template-columns: minmax(0, 1fr) 76px 78px 26px 26px;
+}
+
+.amordom.sheet .adom-sheet .arcana-attack-header {
+  grid-template-columns: minmax(0, 1fr) 64px 52px 26px 26px;
 }
 
 .amordom.sheet .adom-sheet .arma-ataque-header label,
@@ -1640,8 +1671,116 @@
   align-items: center;
 }
 
+.amordom.sheet .adom-sheet .weapon-roll-row {
+  grid-template-columns: minmax(0, 1fr) 76px 78px 26px 26px;
+}
+
 .amordom.sheet .adom-sheet .arcana-row {
-  grid-template-columns: minmax(0, 1fr) 64px 26px 26px;
+  grid-template-columns: minmax(0, 1fr) 64px 52px 26px 26px;
+}
+
+.amordom.sheet .adom-sheet .arcana-groups {
+  gap: 0.65rem;
+}
+
+.amordom.sheet .adom-sheet .arcana-group {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.amordom.sheet .adom-sheet .arcana-group[hidden] {
+  display: none;
+}
+
+.amordom.sheet .adom-sheet .arcana-group-heading {
+  margin: 0;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid var(--amordom-border);
+  color: var(--amordom-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.amordom.sheet .adom-sheet .arcana-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.amordom.sheet .adom-sheet .arcana-type-options {
+  width: 52px;
+}
+
+.amordom.sheet .adom-sheet .arcana-type-option {
+  position: relative;
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.amordom.sheet .adom-sheet .arcana-type-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.amordom.sheet .adom-sheet .arcana-type-option > span {
+  position: relative;
+  display: grid;
+  width: 21px;
+  height: 21px;
+  place-items: center;
+}
+
+.amordom.sheet .adom-sheet .arcana-type-option img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.amordom.sheet .adom-sheet .arcana-type-option .arcana-heart-full {
+  display: none;
+}
+
+.amordom.sheet .adom-sheet .arcana-type-option:has(input:checked) .arcana-heart-empty {
+  display: none;
+}
+
+.amordom.sheet .adom-sheet .arcana-type-option:has(input:checked) .arcana-heart-full {
+  display: block;
+}
+
+.amordom.sheet .adom-sheet .arcana-type-option b {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  color: var(--amordom-primary);
+  font-size: 0.62rem;
+  line-height: 1;
+  pointer-events: none;
+  transform: translate(-50%, -40%);
+}
+
+.amordom.sheet .adom-sheet .arcana-type-option:has(input:checked) b {
+  color: #fff;
+}
+
+.amordom.sheet .adom-sheet .arcana-type-option:focus-within {
+  outline: 2px solid var(--amordom-primary);
+  outline-offset: 1px;
+  border-radius: 4px;
 }
 
 .amordom.sheet .adom-sheet .arcana-roll-button img {
@@ -1666,6 +1805,98 @@
   max-width: 64px;
   text-align: center;
   justify-self: center;
+}
+
+.amordom.sheet .adom-sheet .weapon-roll-row .arma-ataque-dmg {
+  width: 76px;
+  max-width: 76px;
+}
+
+.amordom.sheet .adom-sheet .weapon-dice-options {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+}
+
+.amordom.sheet .adom-sheet .weapon-die-option {
+  position: relative;
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.amordom.sheet .adom-sheet .weapon-die-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.amordom.sheet .adom-sheet .weapon-die-option > span {
+  position: relative;
+  display: grid;
+  width: 21px;
+  height: 21px;
+  place-items: center;
+}
+
+.amordom.sheet .adom-sheet .weapon-die-option img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.amordom.sheet .adom-sheet .weapon-die-option .weapon-heart-full {
+  display: none;
+}
+
+.amordom.sheet .adom-sheet .weapon-die-option:has(input:checked) .weapon-heart-empty {
+  display: none;
+}
+
+.amordom.sheet .adom-sheet .weapon-die-option:has(input:checked) .weapon-heart-full {
+  display: block;
+}
+
+.amordom.sheet .adom-sheet .weapon-die-option b {
+  position: relative;
+  z-index: 1;
+  color: var(--amordom-primary);
+  font-size: 0.58rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.amordom.sheet .adom-sheet .weapon-die-option:has(input:checked) b {
+  color: #fff;
+}
+
+.amordom.sheet .adom-sheet .weapon-die-option:first-child b {
+  text-transform: lowercase;
+}
+
+.amordom.sheet .adom-sheet .weapon-die-option:focus-within {
+  outline: 2px solid var(--amordom-primary);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+.amordom.sheet .adom-sheet .weapon-roll-button img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+.amordom.sheet .adom-sheet .weapon-roll-button:hover,
+.amordom.sheet .adom-sheet .weapon-roll-button:focus-visible {
+  filter: brightness(1.15);
+  transform: scale(1.06);
 }
 
 .amordom.sheet .adom-sheet .desarrollo-panel {

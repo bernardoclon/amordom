@@ -1,5 +1,5 @@
 import ActorPersonajeData from './data-models/actor-personaje.mjs';
-import { bindArcanaRolls, bindAttributeRolls } from './dices.mjs';
+import { bindArcanaRolls, bindAttributeRolls, bindInitiativeRolls, bindWeaponRolls } from './dices.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -15,6 +15,28 @@ function calculateInitiative(attributes = {}) {
   const reflexes = Number(attributes.destreza) || 0;
   const intelligence = Number(attributes.percepcion) || 0;
   return reflexes + Math.floor(intelligence / 2);
+}
+
+function groupArcanaSkills(skills = []) {
+  const groups = [
+    { key: 'innatas', label: 'Innatas', habilidades: [] },
+    { key: 'aprendidas', label: 'Aprendidas', habilidades: [] },
+    { key: 'sinClasificar', label: 'Sin clasificar', habilidades: [] }
+  ];
+
+  skills.forEach((skill, originalIndex) => {
+    const group = skill.innata
+      ? groups[0]
+      : skill.aprendida
+        ? groups[1]
+        : groups[2];
+    group.habilidades.push({ ...skill, originalIndex, arcanaGroupKey: group.key });
+  });
+
+  groups.forEach((group) => {
+    group.isEmpty = group.habilidades.length === 0;
+  });
+  return groups;
 }
 
 export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
@@ -96,6 +118,16 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
     copyState.combate = { ...copyState.combate, iniciativa: copyInitiative };
 
     const healthUpdates = {};
+    const baseWeapons = baseSystem.combate?.armas ?? [];
+    const burnedWeapons = copyState.combate?.armas ?? [];
+    if (burnedWeapons.length > baseWeapons.length) {
+      const sharedWeapons = [
+        ...baseWeapons,
+        ...foundry.utils.deepClone(burnedWeapons.slice(baseWeapons.length))
+      ];
+      baseSystem.combate.armas = sharedWeapons;
+      healthUpdates['system.combate.armas'] = sharedWeapons;
+    }
     if (currentSystem.salud?.umbral !== baseDerivedHealth.umbral || currentSystem.salud?.total !== baseDerivedHealth.total) {
       healthUpdates['system.salud.umbral'] = baseDerivedHealth.umbral;
       healthUpdates['system.salud.total'] = baseDerivedHealth.total;
@@ -128,7 +160,11 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
       displaySystem.habilidadesArcanas = foundry.utils.deepClone(
         copySource.habilidadesArcanas ?? displaySystem.habilidadesArcanas ?? []
       );
-      displaySystem.combate = { ...displaySystem.combate, ...copySource.combate };
+      displaySystem.combate = {
+        ...displaySystem.combate,
+        ...copySource.combate,
+        armas: baseSystem.combate?.armas ?? []
+      };
       displaySystem.hitos = currentSystem.hitos;
       displaySystem.complicaciones = currentSystem.complicaciones;
       displaySystem.logros = currentSystem.logros;
@@ -142,14 +178,17 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
     context.system = displaySystem;
     context.copy = copyState;
     context.isBurnedMode = this._isBurnedMode;
+    context.arcanaGroups = groupArcanaSkills(displaySystem.habilidadesArcanas ?? []);
     return context;
   }
 
   _setTab(tabName) {
-    const targetTab = tabName;
-    this._activeTab = targetTab;
     const form = this.element;
     if (!form) return;
+    const hasTargetTab = [...form.querySelectorAll('[data-tab-button]')]
+      .some((button) => button.dataset.tabButton === tabName);
+    const targetTab = hasTargetTab ? tabName : 'principal';
+    this._activeTab = targetTab;
 
     form.querySelectorAll('[data-tab-panel]').forEach((panel) => {
       const active = panel.dataset.tabPanel === targetTab;
@@ -205,16 +244,49 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
       const listItemMatch = target.name.match(/^system\.(combate\.armas|habilidadesArcanas|hitos|complicaciones|logros|recursos|inventario)\.(\d+)\.([^.]+)$/);
       if (listItemMatch) {
         const [, listPath, itemIndex, property] = listItemMatch;
-        const isBurnedCopyList = this._isBurnedMode && ['combate.armas', 'habilidadesArcanas'].includes(listPath);
+        const isBurnedCopyList = this._isBurnedMode && listPath === 'habilidadesArcanas';
         const dataPath = `${isBurnedCopyList ? 'copia.' : ''}${listPath}`;
         const currentItems = foundry.utils.getProperty(this.document.system, dataPath) ?? [];
         const updatedItems = foundry.utils.deepClone(currentItems);
         if (!updatedItems[itemIndex]) return;
 
         let itemValue = target.value;
-        if (target.type === 'number') itemValue = target.value === '' ? 0 : Number(target.value);
+        if (target.type === 'checkbox') itemValue = target.checked;
+        else if (target.type === 'number') itemValue = target.value === '' ? 0 : Number(target.value);
         updatedItems[itemIndex][property] = itemValue;
-        await this.document.update({ [`system.${dataPath}`]: updatedItems }, { diff: false });
+        const isArcanaTypeToggle = listPath === 'habilidadesArcanas' && ['innata', 'aprendida'].includes(property);
+        if (isArcanaTypeToggle && target.checked) {
+          const otherType = property === 'innata' ? 'aprendida' : 'innata';
+          updatedItems[itemIndex][otherType] = false;
+        }
+        if (isArcanaTypeToggle) {
+          const row = target.closest('.arcana-row');
+          const innataInput = row?.querySelector('[name$=".innata"]');
+          const aprendidaInput = row?.querySelector('[name$=".aprendida"]');
+          if (innataInput) innataInput.checked = Boolean(updatedItems[itemIndex].innata);
+          if (aprendidaInput) aprendidaInput.checked = Boolean(updatedItems[itemIndex].aprendida);
+
+          const nextGroupKey = updatedItems[itemIndex].innata
+            ? 'innatas'
+            : updatedItems[itemIndex].aprendida
+              ? 'aprendidas'
+              : 'sinClasificar';
+          const destination = root.querySelector(`.arcana-group[data-arcana-group="${nextGroupKey}"]`);
+          const previousGroup = row?.closest('.arcana-group');
+          const destinationItems = destination?.querySelector('.arcana-group-items');
+          if (row && destination && destinationItems) {
+            destination.hidden = false;
+            destinationItems.append(row);
+            row.dataset.arcanaGroup = nextGroupKey;
+            if (previousGroup !== destination && !previousGroup?.querySelector('.arcana-row')) {
+              previousGroup.hidden = true;
+            }
+          }
+        }
+        await this.document.update({ [`system.${dataPath}`]: updatedItems }, {
+          diff: false,
+          render: target.type !== 'checkbox'
+        });
         return;
       }
 
@@ -302,7 +374,7 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
     };
 
     const getList = (fieldPath) => {
-      const sourcePath = this._isBurnedMode && ['combate.armas', 'habilidadesArcanas'].includes(fieldPath)
+      const sourcePath = this._isBurnedMode && fieldPath === 'habilidadesArcanas'
         ? `copia.${fieldPath}`
         : fieldPath;
       const value = foundry.utils.getProperty(actor.system, sourcePath);
@@ -310,7 +382,7 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
     };
 
     const persistList = async (fieldPath, nextItems) => {
-      const targetPath = this._isBurnedMode && ['combate.armas', 'habilidadesArcanas'].includes(fieldPath)
+      const targetPath = this._isBurnedMode && fieldPath === 'habilidadesArcanas'
         ? `system.copia.${fieldPath}`
         : `system.${fieldPath}`;
       await actor.update({ [targetPath]: nextItems });
@@ -318,8 +390,8 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
 
     const suggestedLabel = (baseLabel, index) => `${baseLabel} ${index + 1}`;
     const buildItem = (fieldPath, index) => {
-      if (fieldPath === 'combate.armas') return { nombre: suggestedLabel('Arma', index), valor: 0 };
-      if (fieldPath === 'habilidadesArcanas') return { nombre: suggestedLabel('Arcana', index), valor: 0 };
+      if (fieldPath === 'combate.armas') return { nombre: suggestedLabel('Arma', index), valor: '', dadoM: false, dadoC: true, dadoMayor: false };
+      if (fieldPath === 'habilidadesArcanas') return { nombre: suggestedLabel('Arcana', index), valor: 0, innata: false, aprendida: false };
       if (fieldPath === 'recursos') return { nombre: suggestedLabel('Lazo', index), valor: 0 };
       if (fieldPath === 'hitos') return { texto: suggestedLabel('Aspecto Temporal', index) };
       if (fieldPath === 'complicaciones') return { texto: suggestedLabel('Complicación', index) };
@@ -471,10 +543,13 @@ export default class AmorDomCharacterSheet extends HandlebarsApplicationMixin(Ac
     const root = this.element;
     if (root) {
       root.classList.toggle('burned-sheet', !!this._isBurnedMode);
+      root.querySelector('.adom-sheet')?.classList.toggle('burned-sheet-form', !!this._isBurnedMode);
     }
     this._bindFormPersistence();
     this._bindInteractionHandlers();
     bindAttributeRolls(root, this.document, this._isBurnedMode);
+    bindInitiativeRolls(root, this.document, this._isBurnedMode);
+    bindWeaponRolls(root, this.document);
     bindArcanaRolls(root, this.document, this._isBurnedMode);
     this._setSheetMode('principal');
     
@@ -513,6 +588,8 @@ class AmorDomBurnedCharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
     const context = await super._prepareContext(options);
     context.actor = this.document;
     context.system = this.document.system;
+    context.arcanaGroups = groupArcanaSkills(this.document.system.habilidadesArcanas ?? []);
+    context.isBurnedMode = true;
     return context;
   }
 
@@ -522,6 +599,8 @@ class AmorDomBurnedCharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
     if (windowTitle) windowTitle.textContent = this.document.name;
     if (this.element) {
       bindAttributeRolls(this.element, this.document, true);
+      bindInitiativeRolls(this.element, this.document, true);
+      bindWeaponRolls(this.element, this.document);
       bindArcanaRolls(this.element, this.document, true);
     }
   }
