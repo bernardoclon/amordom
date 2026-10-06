@@ -314,9 +314,12 @@ export function bindCarouselInitiativeSelector() {
 
     const normalInitiative = Number(actor.system.combate.iniciativa) || 0;
     const extasisInitiative = Number(actor.system.copia?.combate?.iniciativa ?? normalInitiative) || 0;
-    const rollInitiative = (initiative) => combatant.combat.rollInitiative([combatant.id], {
-      formula: `3d10kh2kl1 + ${initiative}`
-    });
+    const rollInitiative = (initiative, isCopyMode) => openInitiativeRollDialog(
+      actor,
+      initiative,
+      isCopyMode,
+      (total) => combatant.combat.setInitiative(combatant.id, total)
+    );
 
     new DialogV2({
       classes: ['dialog', 'amordom', 'amordom-roll-dialog-window'],
@@ -327,19 +330,19 @@ export function bindCarouselInitiativeSelector() {
           action: 'normal',
           label: `Normal (${normalInitiative})`,
           default: true,
-          callback: () => rollInitiative(normalInitiative)
+          callback: () => rollInitiative(normalInitiative, false)
         },
         {
           action: 'extasis',
           label: `Éxtasis (${extasisInitiative})`,
-          callback: () => rollInitiative(extasisInitiative)
+          callback: () => rollInitiative(extasisInitiative, true)
         }
       ]
     }).render(true);
   }, true);
 }
 
-export function openInitiativeRollDialog(actor, initiativeValue, isCopyMode = false) {
+export function openInitiativeRollDialog(actor, initiativeValue, isCopyMode = false, onRoll = null) {
   const sourceSystem = isCopyMode ? actor.system?.copia : actor.system;
   const value = Number(sourceSystem?.combate?.iniciativa ?? initiativeValue) || 0;
   const dialog = new DialogV2({
@@ -417,6 +420,7 @@ export function openInitiativeRollDialog(actor, initiativeValue, isCopyMode = fa
             timestamp: Date.now(),
             flavor: buildInitiativeChatFlavor(value, diceResults, selectedDice, modifier, finalTotal)
           });
+          await onRoll?.(finalTotal);
         }
       },
       {
