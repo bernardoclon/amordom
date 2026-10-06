@@ -220,6 +220,125 @@ export function bindAttributeRolls(root, actor, isCopyMode = false) {
   });
 }
 
+function buildInitiativeChatFlavor(value, diceResults, selectedDice, modifier, finalTotal) {
+  const sortedDice = [...diceResults].sort((first, second) => first - second);
+  const diceByType = { m: sortedDice[0], c: sortedDice[1], M: sortedDice[2] };
+  const ones = diceResults.filter((result) => result === 1).length;
+  const tens = diceResults.filter((result) => result === 10).length;
+  const resultStatus = ones >= 2
+    ? '<div class="amordom-chat-roll__status amordom-chat-roll__status--fumble"><strong>Pifia</strong></div>'
+    : tens >= 2
+      ? '<div class="amordom-chat-roll__status amordom-chat-roll__status--critical"><strong>Crítico</strong></div>'
+      : '';
+  const selectedDiceMarkup = selectedDice.map((dieType) => {
+    const dieLabel = dieType === 'c' ? 'C' : dieType;
+    return `
+      <span class="amordom-chat-roll__selected-die" title="Dado ${dieLabel} sumado">
+        <img src="systems/amordom/art/heart full.png" alt="" />
+        <b>${dieLabel}</b>
+      </span>`;
+  }).join('');
+
+  return `
+    <div class="amordom-chat-roll">
+      <div class="amordom-chat-roll__header">
+        <div class="amordom-chat-roll__context"><span>Iniciativa ${value}</span></div>
+      </div>
+      <div class="amordom-chat-roll__dice">
+        <span class="amordom-chat-roll__die"><img src="systems/amordom/art/heart.png" alt="" /><b>m</b><strong>${diceByType.m}</strong></span>
+        <span class="amordom-chat-roll__die"><img src="systems/amordom/art/heart.png" alt="" /><b>C</b><strong>${diceByType.c}</strong></span>
+        <span class="amordom-chat-roll__die"><img src="systems/amordom/art/heart.png" alt="" /><b>M</b><strong>${diceByType.M}</strong></span>
+      </div>
+      ${resultStatus}
+      <div class="amordom-chat-roll__details">
+        <span class="amordom-chat-roll__selected-dice" aria-label="Dados sumados">${selectedDiceMarkup}</span>
+        ${modifier ? `<span>Modificador: ${modifier}</span>` : ''}
+      </div>
+      <div class="amordom-chat-roll__total">
+        <span>Total de la tirada</span>
+        <strong>${finalTotal}</strong>
+      </div>
+    </div>`;
+}
+
+export function bindCarouselInitiativeChatFormat() {
+  const CombatantClass = CONFIG.Combatant?.documentClass
+    ?? foundry.documents?.Combatant
+    ?? globalThis.Combatant;
+  const prototype = CombatantClass?.prototype;
+  if (!prototype?.getInitiativeRoll || prototype.getInitiativeRoll._amordomChatFormat) return;
+
+  const getInitiativeRoll = prototype.getInitiativeRoll;
+  const wrappedGetInitiativeRoll = function (formula, ...args) {
+    const roll = getInitiativeRoll.call(this, formula, ...args);
+    if (!this.actor?.system?.combate || typeof roll?.toMessage !== 'function') return roll;
+
+    const toMessage = roll.toMessage.bind(roll);
+    roll.toMessage = (messageData = {}, options = {}) => {
+      const diceResults = roll.dice?.[0]?.results?.map((result) => Number(result.result)) ?? [];
+      if (diceResults.length !== 3) return toMessage(messageData, options);
+
+      const formulaInitiative = String(formula ?? '').match(/\+\s*(-?\d+(?:\.\d+)?)\s*$/)?.[1];
+      const baseInitiative = Number(formulaInitiative ?? this.actor.system.combate.iniciativa) || 0;
+      const sortedDice = [...diceResults].sort((first, second) => first - second);
+      roll._total = sortedDice[1] + baseInitiative;
+      return toMessage({
+        ...messageData,
+        flavor: buildInitiativeChatFlavor(baseInitiative, diceResults, ['c'], 0, roll._total)
+      }, options);
+    };
+
+    return roll;
+  };
+  wrappedGetInitiativeRoll._amordomChatFormat = true;
+  prototype.getInitiativeRoll = wrappedGetInitiativeRoll;
+}
+
+export function bindCarouselInitiativeSelector() {
+  if (document.documentElement.dataset.amordomCarouselInitiativeBound === 'true') return;
+  document.documentElement.dataset.amordomCarouselInitiativeBound = 'true';
+
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+    const rollButton = event.target.closest('.combatant-portrait .roll-initiative');
+    if (!rollButton || !game.modules.get('combat-tracker-dock')?.active) return;
+
+    const portrait = rollButton.closest('.combatant-portrait[data-combatant-id]');
+    const combatant = game.combat?.combatants.get(portrait?.dataset.combatantId);
+    const actor = combatant?.actor;
+    if (!combatant || !actor?.system?.combate) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const normalInitiative = Number(actor.system.combate.iniciativa) || 0;
+    const extasisInitiative = Number(actor.system.copia?.combate?.iniciativa ?? normalInitiative) || 0;
+    const rollInitiative = (initiative) => combatant.combat.rollInitiative([combatant.id], {
+      formula: `3d10kh2kl1 + ${initiative}`
+    });
+
+    new DialogV2({
+      classes: ['dialog', 'amordom', 'amordom-roll-dialog-window'],
+      window: { title: 'Elegir iniciativa' },
+      content: '<p>¿Qué valor de iniciativa quieres usar para este personaje?</p>',
+      buttons: [
+        {
+          action: 'normal',
+          label: `Normal (${normalInitiative})`,
+          default: true,
+          callback: () => rollInitiative(normalInitiative)
+        },
+        {
+          action: 'extasis',
+          label: `Éxtasis (${extasisInitiative})`,
+          callback: () => rollInitiative(extasisInitiative)
+        }
+      ]
+    }).render(true);
+  }, true);
+}
+
 export function openInitiativeRollDialog(actor, initiativeValue, isCopyMode = false) {
   const sourceSystem = isCopyMode ? actor.system?.copia : actor.system;
   const value = Number(sourceSystem?.combate?.iniciativa ?? initiativeValue) || 0;
@@ -290,47 +409,13 @@ export function openInitiativeRollDialog(actor, initiativeValue, isCopyMode = fa
           const sortedDice = [...diceResults].sort((first, second) => first - second);
           const diceByType = { m: sortedDice[0], c: sortedDice[1], M: sortedDice[2] };
           const selectedTotal = selectedDice.reduce((total, dieType) => total + diceByType[dieType], 0);
-          const ones = diceResults.filter((result) => result === 1).length;
-          const tens = diceResults.filter((result) => result === 10).length;
-          const resultStatus = ones >= 2
-            ? '<div class="amordom-chat-roll__status amordom-chat-roll__status--fumble"><strong>Pifia</strong></div>'
-            : tens >= 2
-              ? '<div class="amordom-chat-roll__status amordom-chat-roll__status--critical"><strong>Crítico</strong></div>'
-              : '';
-          const selectedDiceMarkup = selectedDice.map((dieType) => {
-            const dieLabel = dieType === 'c' ? 'C' : dieType;
-            return `
-              <span class="amordom-chat-roll__selected-die" title="Dado ${dieLabel} sumado">
-                <img src="systems/amordom/art/heart full.png" alt="" />
-                <b>${dieLabel}</b>
-              </span>`;
-          }).join('');
           const finalTotal = selectedTotal + value + modifier;
           roll._total = finalTotal;
 
           await roll.toMessage({
             speaker: ChatMessage.getSpeaker({ actor }),
             timestamp: Date.now(),
-            flavor: `
-              <div class="amordom-chat-roll">
-                <div class="amordom-chat-roll__header">
-                  <div class="amordom-chat-roll__context"><span>Iniciativa ${value}</span></div>
-                </div>
-                <div class="amordom-chat-roll__dice">
-                  <span class="amordom-chat-roll__die"><img src="systems/amordom/art/heart.png" alt="" /><b>m</b><strong>${diceByType.m}</strong></span>
-                  <span class="amordom-chat-roll__die"><img src="systems/amordom/art/heart.png" alt="" /><b>C</b><strong>${diceByType.c}</strong></span>
-                  <span class="amordom-chat-roll__die"><img src="systems/amordom/art/heart.png" alt="" /><b>M</b><strong>${diceByType.M}</strong></span>
-                </div>
-                ${resultStatus}
-                <div class="amordom-chat-roll__details">
-                  <span class="amordom-chat-roll__selected-dice" aria-label="Dados sumados">${selectedDiceMarkup}</span>
-                  ${modifier ? `<span>Modificador: ${modifier}</span>` : ''}
-                </div>
-                <div class="amordom-chat-roll__total">
-                  <span>Total de la tirada</span>
-                  <strong>${finalTotal}</strong>
-                </div>
-              </div>`
+            flavor: buildInitiativeChatFlavor(value, diceResults, selectedDice, modifier, finalTotal)
           });
         }
       },
@@ -476,12 +561,15 @@ function escapeArcanaName(name) {
   })[character]);
 }
 
-export function openArcanaRollDialog(actor, arcanaName, arcanaValue, isCopyMode = false, currentWillpower) {
-  const willpower = Number(currentWillpower ?? (isCopyMode
-    ? actor.system?.copia?.atributos?.voluntad
-    : actor.system?.atributos?.voluntad)) || 0;
+export function openArcanaRollDialog(actor, arcanaName, arcanaValue, isCopyMode = false, currentWillpower, currentIntelligence, isInnate = true) {
+  const attributeName = isInnate ? 'voluntad' : 'percepcion';
+  const attributeLabel = isInnate ? 'Voluntad' : 'Inteligencia';
+  const currentAttribute = isInnate ? currentWillpower : currentIntelligence;
+  const baseAttribute = Number(currentAttribute ?? (isCopyMode
+    ? actor.system?.copia?.atributos?.[attributeName]
+    : actor.system?.atributos?.[attributeName])) || 0;
   const value = Number(arcanaValue) || 0;
-  const baseTotal = willpower + value;
+  const baseTotal = baseAttribute + value;
   const safeArcanaName = escapeArcanaName(arcanaName || 'Arcana');
   const dialog = new DialogV2({
     classes: ['dialog', 'amordom', 'amordom-roll-dialog-window'],
@@ -491,7 +579,7 @@ export function openArcanaRollDialog(actor, arcanaName, arcanaValue, isCopyMode 
     content: `
       <form class="amordom-roll-dialog amordom-roll-dialog--arcana">
         <div class="amordom-roll-dialog__summary amordom-roll-dialog__summary--arcana">
-          <strong>Voluntad + ${safeArcanaName}</strong>
+          <strong>${attributeLabel} + ${safeArcanaName}</strong>
           <strong>${baseTotal}</strong>
         </div>
         <fieldset class="amordom-roll-dialog__field amordom-roll-dialog__dice-field">
@@ -575,7 +663,7 @@ export function openArcanaRollDialog(actor, arcanaName, arcanaValue, isCopyMode 
               <div class="amordom-chat-roll">
                 <div class="amordom-chat-roll__header">
                   <div class="amordom-chat-roll__context">
-                    <span>Voluntad ${willpower} + ${safeArcanaName} ${value}</span>
+                    <span>${attributeLabel} ${baseAttribute} + ${safeArcanaName} ${value}</span>
                   </div>
                 </div>
                 <div class="amordom-chat-roll__dice">
@@ -655,7 +743,9 @@ export function bindArcanaRolls(root, actor, isCopyMode = false) {
       const name = row?.querySelector('.arma-ataque-nombre')?.value?.trim();
       const value = row?.querySelector('.arma-ataque-dmg')?.value;
       const willpower = root.querySelector('[name="system.atributos.voluntad"]')?.value;
-      openArcanaRollDialog(actor, name, value, isCopyMode, willpower);
+      const intelligence = root.querySelector('[name="system.atributos.percepcion"]')?.value;
+      const isInnate = !(row?.querySelector('[name$=".aprendida"]')?.checked);
+      openArcanaRollDialog(actor, name, value, isCopyMode, willpower, intelligence, isInnate);
     });
   });
 }

@@ -1,5 +1,5 @@
 import ActorPersonajeData from './data-models/actor-personaje.mjs';
-import { bindArcanaRolls, bindAttributeRolls, bindInitiativeRolls, bindWeaponRolls } from './dices.mjs';
+import { bindArcanaRolls, bindAttributeRolls, bindCarouselInitiativeChatFormat, bindCarouselInitiativeSelector, bindInitiativeRolls, bindWeaponRolls } from './dices.mjs';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -609,6 +609,15 @@ class AmorDomBurnedCharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 Hooks.on('init', () => {
   // Registramos el TypeDataModel en el sistema
   CONFIG.Actor.dataModels.personaje = ActorPersonajeData;
+
+  // Carousel Combat llama al método estándar Combat.rollInitiative del core.
+  // Usamos los tres d10 conservando el resultado central (C) más la iniciativa calculada.
+  if (CONFIG.Combat?.initiative) {
+    CONFIG.Combat.initiative.formula = '3d10kh2kl1 + @combate.iniciativa';
+    CONFIG.Combat.initiative.decimals = 0;
+  }
+  bindCarouselInitiativeChatFormat();
+  bindCarouselInitiativeSelector();
 
   const DocumentSheetConfigApi = foundry.applications?.apps?.DocumentSheetConfig ?? globalThis.DocumentSheetConfig;
   if (!DocumentSheetConfigApi) {
